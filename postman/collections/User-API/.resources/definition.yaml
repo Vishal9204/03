@@ -1,0 +1,16 @@
+$kind: collection
+name: User API
+variables:
+  - key: baseUrl
+    value: 'http://localhost:3000'
+  - key: apiKey
+    value: ''
+auth:
+  type: apikey
+  credentials:
+    - key: key
+      value: X-API-Key
+    - key: value
+      value: '{{apiKey}}'
+    - key: in
+      value: header

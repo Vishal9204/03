@@ -1,0 +1,50 @@
+$kind: http-request
+name: Register a new user
+url: "{{baseUrl}}/v1/users/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "{{username}}",
+      "password": "{{password}}"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+scripts:
+  - type: beforeRequest
+    code: |-
+      // Generate random values using Postman's built-in Faker library
+      let randomUser = pm.variables.replaceIn('{{$randomUserName}}');
+      let randomPass = pm.variables.replaceIn('{{$randomPassword}}');
+
+      // Store them in collection variables so other requests can use them
+      pm.collectionVariables.set("username", randomUser);
+      pm.collectionVariables.set("password", randomPass);
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      // Verify the endpoint returns a 201 Created status
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      // Parse the JSON response and store the returned ID
+      let responseData = pm.response.json();
+      pm.collectionVariables.set("userId", responseData.id);
+    language: text/javascript
+examples: ./.resources/Register a new user.resources/examples
+order: 1000
