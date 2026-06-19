@@ -37,9 +37,18 @@ jobs:
           echo "DEMO_X_API_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
           echo "DEMO_JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - name: Initialize database
-        run: PGPASSWORD=postgres psql -h localhost -U postgres -d user_api -f database_schema.txt
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d user_api -f database_schema.txt
       - name: Start API server
-        run: nohup env DEMO_X_API_KEY="$DEMO_X_API_KEY" DEMO_JWT_SECRET="$DEMO_JWT_SECRET" node server.js >/tmp/user-api.log 2>&1 &
+        run: |
+          nohup env DEMO_X_API_KEY="$DEMO_X_API_KEY" DEMO_JWT_SECRET="$DEMO_JWT_SECRET" node server.js >/tmp/user-api.log 2>&1 &
+          SERVER_PID=$!
+          sleep 1
+          if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+            cat /tmp/user-api.log
+            exit 1
+          fi
       - name: Wait for API server
         run: |
           for _ in $(seq 1 "$SERVER_READY_MAX_RETRIES"); do
