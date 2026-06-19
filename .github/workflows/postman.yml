@@ -31,17 +31,17 @@ jobs:
         run: npm ci
       - name: Set CI auth secrets
         run: |
-          echo "DEMO_X_API_KEY=ci-api-key-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
-          echo "DEMO_JWT_SECRET=ci-jwt-secret-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+          echo "DEMO_X_API_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "DEMO_JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - name: Initialize database
         run: PGPASSWORD=postgres psql -h localhost -U postgres -d user_api -f database_schema.txt
       - name: Start API server
-        run: nohup node server.js >/tmp/user-api.log 2>&1 &
+        run: nohup env DEMO_X_API_KEY="$DEMO_X_API_KEY" DEMO_JWT_SECRET="$DEMO_JWT_SECRET" node server.js >/tmp/user-api.log 2>&1 &
       - name: Wait for API server
         run: |
           for i in {1..30}; do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/v1/users/register-test-user?username=workflow-healthcheck" || true)
-            if [ "$status" = "201" ]; then
+            status=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/v1/users/login" || true)
+            if [ "$status" = "401" ]; then
               exit 0
             fi
             sleep 1
