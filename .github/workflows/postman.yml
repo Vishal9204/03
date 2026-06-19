@@ -25,6 +25,7 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_PORT: 5432
+      API_BASE_URL: http://127.0.0.1:3000
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
@@ -40,7 +41,7 @@ jobs:
       - name: Wait for API server
         run: |
           for i in {1..30}; do
-            status=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/v1/users/login" || true)
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$API_BASE_URL/v1/users/login" || true)
             if [ "$status" = "401" ]; then
               exit 0
             fi
@@ -55,4 +56,4 @@ jobs:
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       - name: Run API tests
         run: |
-          postman collection run "55929700-c5834f65-7a67-4869-afc5-67cb662ed719" --env-var "baseUrl=http://127.0.0.1:3000" --env-var "apiKey=$DEMO_X_API_KEY"
+          postman collection run "55929700-c5834f65-7a67-4869-afc5-67cb662ed719" --env-var "baseUrl=$API_BASE_URL" --env-var "apiKey=$DEMO_X_API_KEY"
