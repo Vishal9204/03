@@ -5,6 +5,10 @@ localResources:
     - ../contract/index.yaml
   collections:
     - ../postman/collections/UserAPI - Integration Test Suite
+  environments:
+    - ../postman/environments/Production.environment.yaml
 cloudResources:
   collections:
     ../postman/collections/UserAPI - Integration Test Suite: 55929700-c5834f65-7a67-4869-afc5-67cb662ed719
+  environments:
+    ../postman/environments/Production.environment.yaml: 55929700-a083ebee-a055-4327-b5be-70dc5916e025
