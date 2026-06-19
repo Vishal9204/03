@@ -5,8 +5,61 @@ on: push
 jobs:
   automated-api-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: user_api
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d user_api"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DB_HOST: localhost
+      DB_DATABASE: user_api
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
+      API_BASE_URL: http://127.0.0.1:3000
+      POSTMAN_COLLECTION_ID: 55929700-c5834f65-7a67-4869-afc5-67cb662ed719
+      SERVER_READY_MAX_RETRIES: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Set CI auth secrets
+        run: |
+          echo "DEMO_X_API_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          echo "DEMO_JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+      - name: Initialize database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d user_api -f database_schema.txt
+      - name: Start API server
+        run: |
+          nohup env DEMO_X_API_KEY="$DEMO_X_API_KEY" DEMO_JWT_SECRET="$DEMO_JWT_SECRET" node server.js >/tmp/user-api.log 2>&1 &
+          SERVER_PID=$!
+          sleep 1
+          if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+            cat /tmp/user-api.log
+            exit 1
+          fi
+      - name: Wait for API server
+        run: |
+          for _ in $(seq 1 "$SERVER_READY_MAX_RETRIES"); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$API_BASE_URL/v1/users/login" || true)
+            if [ "$status" = "401" ]; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/user-api.log
+          exit 1
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
@@ -14,4 +67,4 @@ jobs:
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       - name: Run API tests
         run: |
-          postman collection run "55929700-c5834f65-7a67-4869-afc5-67cb662ed719" -e "55929700-a083ebee-a055-4327-b5be-70dc5916e025"
+          postman collection run "$POSTMAN_COLLECTION_ID" --env-var "baseUrl=$API_BASE_URL" --env-var "apiKey=$DEMO_X_API_KEY"
