@@ -4,6 +4,7 @@ workspace:
 localResources:
   specs:
     - ../contract/index.yaml
+    - ../postman/specs/New Specification/New Specification.yaml
   collections:
     - ../postman/collections/UserAPI - Integration Test Suite
   environments:
