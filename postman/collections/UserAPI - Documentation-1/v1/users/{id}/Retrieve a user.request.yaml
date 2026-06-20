@@ -1,0 +1,42 @@
+$kind: http-request
+url: "{{baseUrl}}/v1/users/:id"
+method: GET
+description: |-
+  Retrieves a single user by their numeric `id`. Returns the user's `id` and `username` (the password is never returned).
+
+  **Auth:** Requires a valid `X-API-Key` header.
+
+  ### Path parameters
+
+  | Param | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `id` | integer | yes | The unique ID of the user to retrieve |
+
+  ### Responses
+
+  - `200 OK` — returns `{ "id", "username" }`.
+  - `401 Unauthorized` — missing or invalid API key.
+  - `404 Not Found` — no user exists with the given ID.
+  - `500 Internal Server Error` — database or server error.
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: "6624"
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+examples: ./.resources/Retrieve a user.resources/examples
+order: 1000

@@ -1,0 +1,44 @@
+$kind: http-request
+url: "{{baseUrl}}/v1/users/register"
+method: POST
+description: |-
+  Registers a new user with a `username` and `password`. The password is hashed (bcrypt) before being stored.
+
+  **Auth:** Requires a valid `X-API-Key` header.
+
+  ### Request body (JSON)
+
+  | Field | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `username` | string | yes | Desired unique username |
+  | `password` | string | yes | Plain-text password (hashed server-side) |
+
+  ### Responses
+
+  - `201 Created` — returns `{ "id", "username", "token" }` where `token` is a JWT valid for 1 hour.
+  - `401 Unauthorized` — missing or invalid API key.
+  - `500 Internal Server Error` — database or server error (e.g. duplicate username).
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "string",
+      "password": "string"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+examples: ./.resources/Register a new user.resources/examples
+order: 1000

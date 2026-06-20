@@ -1,0 +1,46 @@
+$kind: collection
+name: UserAPI - Documentation
+description: |-
+  # UserAPI
+
+  A RESTful API for managing users — registration, authentication, and full CRUD operations. All resources are served under the `/v1/users` base path.
+
+  ## Base URL
+
+  Requests are made relative to the `{{baseUrl}}` variable, e.g. `{{baseUrl}}/v1/users`.
+
+  ## Authentication
+
+  This collection uses API key authentication: the `X-API-Key` header is sent on every request (value taken from the `{{apiKey}}` variable). Requests with a missing or invalid key receive `401 Unauthorized` with `{ "message": "Invalid API key." }`.
+
+  Successful **Register** and **Login** responses include a JWT `token` signed with a 1-hour expiry, which can be used by downstream services.
+
+  ## Common responses
+
+  | Status | Meaning |
+  | --- | --- |
+  | `200 OK` | Request succeeded |
+  | `201 Created` | User created successfully |
+  | `401 Unauthorized` | Missing/invalid API key or bad credentials |
+  | `404 Not Found` | User does not exist |
+  | `500 Internal Server Error` | Unexpected server/database error |
+
+  ## Endpoints
+
+  | Method | Path | Description |
+  | --- | --- | --- |
+  | `POST` | `/v1/users/register` | Register a new user |
+  | `POST` | `/v1/users/login` | Authenticate and obtain a JWT |
+  | `GET` | `/v1/users/:id` | Retrieve a user by ID |
+  | `PUT` | `/v1/users/:id` | Update a user |
+  | `DELETE` | `/v1/users/:id` | Delete a user |
+variables:
+  baseUrl: /
+auth:
+  - id: 9ec33d92-aae5-4647-8286-e79337d6316c
+    type: apikey
+    name: apikey auth
+    credentials:
+      key: X-API-Key
+      value: "{{apiKey}}"
+      in: header
