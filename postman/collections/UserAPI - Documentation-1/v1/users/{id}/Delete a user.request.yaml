@@ -1,0 +1,41 @@
+$kind: http-request
+url: "{{baseUrl}}/v1/users/:id"
+method: DELETE
+description: |-
+  Permanently deletes the user identified by `id`.
+
+  **Auth:** Requires a valid `X-API-Key` header.
+
+  ### Path parameters
+
+  | Param | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `id` | integer | yes | The unique ID of the user to delete |
+
+  ### Responses
+
+  - `200 OK` — returns `{ "message": "User deleted successfully" }`.
+  - `401 Unauthorized` — missing or invalid API key.
+  - `500 Internal Server Error` — database or server error.
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: "6624"
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+examples: ./.resources/Delete a user.resources/examples
+order: 3000

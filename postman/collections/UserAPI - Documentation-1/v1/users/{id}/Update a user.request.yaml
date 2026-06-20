@@ -1,0 +1,65 @@
+$kind: http-request
+url: "{{baseUrl}}/v1/users/:id"
+method: PUT
+description: |-
+  Updates the `username` and `password` of an existing user identified by `id`. The new password is hashed (bcrypt) before being stored.
+
+  **Auth:** Requires a valid `X-API-Key` header.
+
+  ### Path parameters
+
+  | Param | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `id` | integer | yes | The unique ID of the user to update |
+
+  ### Request body (JSON)
+
+  | Field | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `username` | string | yes | New username |
+  | `password` | string | yes | New plain-text password (hashed server-side) |
+
+  ### Responses
+
+  - `200 OK` — returns `{ "message": "User updated successfully" }`.
+  - `401 Unauthorized` — missing or invalid API key.
+  - `500 Internal Server Error` — database or server error.
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: "6624"
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: json
+  content: |-
+    {
+      "username": "string",
+      "password": "string"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+examples: ./.resources/Update a user.resources/examples
+order: 2000

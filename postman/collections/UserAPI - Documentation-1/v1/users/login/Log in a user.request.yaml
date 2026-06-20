@@ -1,0 +1,44 @@
+$kind: http-request
+url: "{{baseUrl}}/v1/users/login"
+method: POST
+description: |-
+  Authenticates an existing user by `username` and `password`. On success, returns a JWT that can be used to identify the user.
+
+  **Auth:** Requires a valid `X-API-Key` header.
+
+  ### Request body (JSON)
+
+  | Field | Type | Required | Description |
+  | ----- | ---- | -------- | ----------- |
+  | `username` | string | yes | Registered username |
+  | `password` | string | yes | Account password |
+
+  ### Responses
+
+  - `200 OK` — returns `{ "id", "username", "token" }` where `token` is a JWT valid for 1 hour.
+  - `401 Unauthorized` — invalid API key, or username/password is incorrect.
+  - `500 Internal Server Error` — database or server error.
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "string",
+      "password": "string"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+examples: ./.resources/Log in a user.resources/examples
+order: 1000
